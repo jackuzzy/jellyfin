@@ -432,6 +432,13 @@ namespace MediaBrowser.MediaEncoding.Encoder
         {
             var ffmpegAnalyzeDuration = _config.GetFFmpegAnalyzeDuration() ?? string.Empty;
             var ffmpegProbeSize = _config.GetFFmpegProbeSize() ?? string.Empty;
+            // For LiveTV, use minimal probesize to reduce delay
+            if (request.MediaSource.Protocol == MediaProtocol.Http &&
+                (request.MediaSource.Path?.Contains("LiveTv/LiveStreamFiles") == true ||
+                request.MediaSource.IsInfiniteStream == true))
+            {
+                ffmpegProbeSize = "32K"; // Minimal probe size for LiveTV
+            }
             var analyzeDuration = string.Empty;
             var extraArgs = string.Empty;
 

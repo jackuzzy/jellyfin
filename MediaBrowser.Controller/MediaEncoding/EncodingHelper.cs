@@ -7066,20 +7066,23 @@ namespace MediaBrowser.Controller.MediaEncoding
 
             // Apply -analyzeduration as per the environment variable,
             // otherwise ffmpeg will break on certain files due to default value is 0.
+            // Minimize analyzeduration for LiveTV streams to reduce startup delay
             var ffmpegAnalyzeDuration = _config.GetFFmpegAnalyzeDuration() ?? string.Empty;
 
-            if (state.MediaSource.AnalyzeDurationMs > 0)
+            // For LiveTV streams, use minimal analysis duration
+            if (state.IsLiveTV)
+            {
+                inputModifier += " -fflags +igndts+fastseek";
+                inputModifier += " -avoid_negative_ts make_zero";
+                analyzeDurationArgument = "-analyzeduration 100000"; // 0.1 seconds for LiveTV
+            }
+            else if (state.MediaSource.AnalyzeDurationMs > 0)
             {
                 analyzeDurationArgument = "-analyzeduration " + (state.MediaSource.AnalyzeDurationMs.Value * 1000).ToString(CultureInfo.InvariantCulture);
             }
             else if (!string.IsNullOrEmpty(ffmpegAnalyzeDuration))
             {
                 analyzeDurationArgument = "-analyzeduration " + ffmpegAnalyzeDuration;
-            }
-
-            if (!string.IsNullOrEmpty(analyzeDurationArgument))
-            {
-                inputModifier += " " + analyzeDurationArgument;
             }
 
             inputModifier = inputModifier.Trim();

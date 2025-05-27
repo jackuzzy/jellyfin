@@ -111,6 +111,9 @@ namespace Jellyfin.LiveTv.TunerHosts
                         {
                             if (_mimeTypesCanShareHttpStream.Contains(response.Content.Headers.ContentType?.MediaType, StringComparison.OrdinalIgnoreCase))
                             {
+                                mediaSource.RequiresOpening = false; // Skip opening delay
+                                mediaSource.BufferMs = 100; // Minimal buffer
+                                mediaSource.ReadAtNativeFramerate = true; // Read at stream rate
                                 return new SharedHttpStream(mediaSource, tunerHost, streamId, FileSystem, _httpClientFactory, Logger, Config, _appHost, _streamHelper);
                             }
                         }

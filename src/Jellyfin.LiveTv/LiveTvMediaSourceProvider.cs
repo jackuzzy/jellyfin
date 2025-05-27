@@ -96,7 +96,7 @@ namespace Jellyfin.LiveTv
             foreach (var source in list)
             {
                 source.Type = MediaSourceType.Default;
-                source.BufferMs ??= 1500;
+                source.BufferMs ??= 200;
 
                 if (source.RequiresOpening || forceRequireOpening)
                 {
